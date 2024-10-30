@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GSC DTDAY 52g 돌림판</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        background: #f8f9fa;
+        padding: 20px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100vh;
+        background: #f9fafb;
+        padding: 1rem;
+      }
+
+      .game-area {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1600px;
+        margin: 0 auto;
+        align-items: center;
+        height: calc(100vh - 100px);
+      }
+
+      .legend {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        margin-bottom: 0;
+      }
+
+      .legend h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #191f28;
+        margin-bottom: 1rem;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        border-radius: 12px;
+        transition: background-color 0.2s;
+      }
+
+      .legend-item:hover {
+        background: #f2f4f6;
+      }
+
+      .legend-color {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        margin-right: 16px;
+      }
+
+      .legend-text {
+        flex: 1;
+        font-size: 16px;
+        font-weight: 500;
+        color: #191f28;
+      }
+
+      .legend-probability {
+        font-size: 16px;
+        font-weight: 600;
+        color: #3182f6;
+      }
+
+      .history {
+        margin-top: 2rem;
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        max-width: 1600px;
+        margin: 2rem auto;
+      }
+
+      .history-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #191f28;
+        margin-bottom: 1.5rem;
+      }
+
+      .history-item {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        border-radius: 16px;
+        background: #f9fafb;
+        margin-bottom: 12px;
+        transition: transform 0.2s;
+      }
+
+      .history-item:hover {
+        transform: translateX(4px);
+        background: #f2f4f6;
+      }
+
+      .history-color {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        margin-right: 16px;
+      }
+
+      .history-text {
+        flex: 1;
+        font-size: 16px;
+        font-weight: 500;
+        color: #191f28;
+      }
+
+      .history-time {
+        color: #8b95a1;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .result {
+        text-align: center;
+        padding: 28px;
+        border-radius: 20px;
+        background: #f2f4f6;
+        animation: fadeIn 0.5s ease;
+        margin-bottom: 1.5rem;
+        order: 3;
+        margin-top: auto;
+        min-height: 100px;
+      }
+
+      .result-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .result-text {
+        font-size: 24px;
+        font-weight: 700;
+        color: #191f28;
+      }
+
+      .result-item {
+        padding: 12px 32px;
+        border-radius: 100px;
+        font-size: 20px;
+        font-weight: 600;
+        color: white;
+        animation: popIn 0.5s ease;
+      }
+
+      .wheel-container {
+        position: relative;
+        width: min(700px, 90vw);
+        height: min(700px, 90vw);
+        margin: 20px auto;
+        perspective: 1000px;
+      }
+
+      .wheel {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        position: relative;
+        overflow: hidden;
+        transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        transform: rotate(0deg);
+        box-shadow: 0 0 0 15px #f8f9fa, 0 0 0 16px #e9ecef,
+          0 10px 20px rgba(0, 0, 0, 0.15);
+        will-change: transform;
+      }
+
+      .wheel::before {
+        content: "";
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        background: white;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .pointer {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 40px;
+        background: #ff6b6b;
+        clip-path: polygon(50% 100%, 0 0, 100% 0);
+        z-index: 2;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      }
+
+      .wheel-slice {
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        transform-origin: 100% 50%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 20px;
+      }
+
+      .wheel-slice span {
+        position: absolute;
+        transform-origin: center;
+        color: white;
+        font-weight: bold;
+        font-size: min(16px, 3vw);
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        transform: rotate(90deg) translateX(-50%);
+        white-space: nowrap;
+        text-align: center;
+        padding: 5px 10px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+        backdrop-filter: blur(2px);
+      }
+
+      .probability-controls {
+        margin-top: 24px;
+      }
+
+      .probability-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        gap: 12px;
+      }
+
+      input[type="range"] {
+        flex: 1;
+        height: 8px;
+        border-radius: 4px;
+        background: #e9ecef;
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #228be6;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      .spin-button {
+        background: linear-gradient(91.49deg, #3182f6 0%, #4593fc 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        padding: 1.25rem;
+        font-size: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: auto;
+        text-align: center;
+        letter-spacing: 0.5px;
+        order: 2;
+        margin: 0;
+      }
+
+      .spin-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(49, 130, 246, 0.3);
+      }
+
+      .spin-button:active {
+        transform: translateY(1px);
+        box-shadow: 0 4px 12px rgba(49, 130, 246, 0.2);
+      }
+
+      .spin-button:disabled {
+        background: #e9ecef;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .result {
+        text-align: center;
+        margin-top: 24px;
+        padding: 16px;
+        border-radius: 12px;
+        background: #f8f9fa;
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* 모달 스타일 개선 */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        width: 95%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .modal-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #191f28;
+      }
+
+      .close-button {
+        background: #f8f9fa;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #4e5968;
+        transition: all 0.2s;
+      }
+
+      .close-button:hover {
+        background: #e9ecef;
+      }
+
+      .item-controls {
+        display: grid;
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+
+      .item-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 80px auto;
+        gap: 16px;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 16px;
+        transition: all 0.2s;
+      }
+
+      .item-row:hover {
+        background: #f1f3f5;
+      }
+
+      .item-input {
+        padding: 12px 16px;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.2s;
+      }
+
+      .item-input:focus {
+        border-color: #4593fc;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(69, 147, 252, 0.1);
+      }
+
+      input[type="color"] {
+        width: 50px;
+        height: 50px;
+        padding: 0;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        background: none;
+      }
+
+      .delete-button {
+        background: #fff1f1;
+        color: #e03131;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .delete-button:hover {
+        background: #ffe3e3;
+        transform: translateY(-1px);
+      }
+
+      .add-item-button {
+        background: #e9ecef;
+        color: #495057;
+        border: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 24px;
+        width: 100%;
+      }
+
+      .add-item-button:hover {
+        background: #dee2e6;
+        transform: translateY(-1px);
+      }
+
+      /* 모달 내 저장 버튼 스타일 수정 */
+      .modal-content .spin-button {
+        width: 100%;
+        margin-top: 8px;
+      }
+
+      /* 반응형 디자인 개선 */
+      @media (max-width: 768px) {
+        .container {
+          padding: 16px;
+          margin: 10px;
+        }
+
+        h1 {
+          font-size: 20px;
+        }
+
+        .wheel-container {
+          width: 90%;
+          margin: 10px auto;
+        }
+      }
+
+      /* 새로운 아이템 스타일 */
+      .item-tag {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 16px;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 4px;
+      }
+
+      .item-controls {
+        margin-bottom: 24px;
+      }
+
+      .item-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 12px;
+      }
+
+      .item-input {
+        flex: 1;
+        padding: 8px 16px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .delete-button {
+        background: #ffe3e3;
+        color: #e03131;
+        border: none;
+        padding: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .add-item-button {
+        width: 100%;
+        padding: 12px;
+        background: #e9ecef;
+        border: none;
+        border-radius: 12px;
+        color: #495057;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 12px;
+      }
+
+      .item-row {
+        background: white;
+        border: 1px solid #e9ecef;
+        padding: 16px;
+        border-radius: 12px;
+        transition: all 0.2s;
+      }
+
+      .item-row:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .item-input {
+        padding: 10px;
+        font-size: 15px;
+      }
+
+      input[type="color"] {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .delete-button {
+        padding: 10px 16px;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+
+      .delete-button:hover {
+        background: #ff6b6b;
+        color: white;
+      }
+
+      .modal-content {
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      /* 태블릿 가로 모드를 위한 미디어 쿼리 */
+      @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+        .container {
+          max-width: 90vw;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
+          align-items: center;
+        }
+
+        .wheel-container {
+          width: min(500px, 45vw);
+          height: min(500px, 45vw);
+          margin: 0;
+        }
+
+        .controls-container {
+          padding: 2rem;
+        }
+
+        h1 {
+          grid-column: 1 / -1;
+          margin-bottom: 1rem;
+        }
+
+        .settings-button {
+          grid-column: 1 / -1;
+        }
+      }
+
+      /* 모바일 최적화 */
+      @media (max-width: 767px) {
+        .wheel-container {
+          width: min(300px, 90vw);
+          height: min(300px, 90vw);
+        }
+
+        .wheel-slice span {
+          font-size: 12px;
+        }
+      }
+
+      /* 결과 표시 개선 */
+      .result {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+      }
+
+      .result-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .result-text {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      .result-item {
+        padding: 10px 20px;
+        border-radius: 50px;
+        color: white;
+        font-weight: bold;
+        animation: popIn 0.5s ease;
+      }
+
+      @keyframes popIn {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* 태블릿 반응형 개선 */
+      @media (min-width: 768px) and (max-width: 1024px) {
+        .container {
+          max-width: 95vw;
+          margin: 0 auto;
+          padding: 20px;
+          display: grid;
+          grid-template-columns: minmax(auto, 600px) 1fr;
+          gap: 2rem;
+          align-items: start;
+        }
+
+        .wheel-container {
+          grid-column: 1;
+          width: 100%;
+          height: auto;
+          aspect-ratio: 1;
+        }
+
+        .controls-container {
+          grid-column: 2;
+          position: sticky;
+          top: 20px;
+        }
+
+        h1 {
+          grid-column: 1 / -1;
+          font-size: 28px;
+          margin-bottom: 1rem;
+        }
+      }
+
+      /* 컨트롤 영역 레이아웃 개선 */
+      .controls-container {
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        gap: 1rem;
+      }
+
+      /* 결과 표시 영역 */
+      .result {
+        text-align: center;
+        padding: 28px;
+        border-radius: 20px;
+        background: #f2f4f6;
+        animation: fadeIn 0.5s ease;
+        margin-bottom: 1.5rem;
+      }
+
+      .result-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .result-text {
+        font-size: 24px;
+        font-weight: 700;
+        color: #191f28;
+      }
+
+      .result-item {
+        padding: 12px 32px;
+        border-radius: 100px;
+        font-size: 20px;
+        font-weight: 600;
+        color: white;
+        animation: popIn 0.5s ease;
+      }
+
+      /* 범례 스타일 개선 */
+      .legend {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        margin-bottom: 0;
+      }
+
+      /* 버튼 스타일 개선 */
+      .spin-button {
+        background: linear-gradient(91.49deg, #3182f6 0%, #4593fc 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        padding: 1.25rem;
+        font-size: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: auto;
+        text-align: center;
+        letter-spacing: 0.5px;
+        order: 2;
+        margin: 0;
+      }
+
+      .spin-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(49, 130, 246, 0.3);
+      }
+
+      .spin-button:active {
+        transform: translateY(1px);
+        box-shadow: 0 4px 12px rgba(49, 130, 246, 0.2);
+      }
+
+      .spin-button:disabled {
+        background: #e9ecef;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* 설정 버튼 위치 조정 */
+      .settings-button {
+        background: #f2f4f6;
+        color: #4e5968;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 0.5rem;
+        order: 1;
+      }
+
+      .settings-button:hover {
+        background: #e5e8eb;
+      }
+
+      /* 게임 영역 레이아웃 개선 */
+      .game-area {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1600px;
+        margin: 0 auto;
+        align-items: center;
+        height: calc(100vh - 100px);
+      }
+
+      /* 반응형 디자인 개선 */
+      @media (max-width: 1200px) {
+        .game-area {
+          grid-template-columns: 1fr;
+          max-width: 800px;
+        }
+
+        .controls-container {
+          gap: 1.5rem;
+        }
+
+        .spin-button {
+          margin-top: 1rem;
+        }
+      }
+
+      @media (min-width: 1201px) {
+        .controls-container {
+          position: sticky;
+          top: 2rem;
+        }
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .logo {
+        height: 40px;
+        width: auto;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img
+          src="https://cdn.builder.io/api/v1/image/assets/TEMP/55ee31ec89d1fa6c94e61d86e039cd2b0b66c4ca91bb3e1689f017418f808b56?apiKey=ec8b8cfa854f47b1bd687f09c9c6a1aa&&apiKey=ec8b8cfa854f47b1bd687f09c9c6a1aa"
+          alt="GSC Logo"
+          class="logo"
+        />
+        <h1>GSC DTDAY 52g 돌림판</h1>
+      </div>
+
+      <div class="game-area">
+        <!-- 왼쪽: 룰렛 -->
+        <div class="wheel-container">
+          <div class="pointer"></div>
+          <div class="wheel" id="wheel"></div>
+        </div>
+
+        <!-- 오른쪽: 컨트롤 및 결과 -->
+        <div class="controls-container">
+          <button class="settings-button" onclick="openModal()">
+            확률 설정 ⚙️
+          </button>
+
+          <div class="result" id="result"></div>
+
+          <!-- 범례 -->
+          <div class="legend">
+            <h3>아이템 정보</h3>
+            <div id="legendItems"></div>
+          </div>
+
+          <!-- 돌리기 버튼을 마지막에 배치 -->
+          <button class="spin-button" onclick="spin()">돌리기 🎯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>아이템 설정</h2>
+          <button class="close-button" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="item-controls" id="modalControls"></div>
+        <button class="add-item-button" onclick="addItem()">
+          + 새 아이템 추가
+        </button>
+        <button class="spin-button" onclick="saveSettings()">저장</button>
+      </div>
+    </div>
+
+    <script>
+      const items = [
+        { label: "아메리카노", color: "#ff6b6b", probability: 30 },
+        { label: "카페라떼", color: "#748ffc", probability: 30 },
+        { label: "카푸치노", color: "#69db7c", probability: 20 },
+        { label: "에스프레소", color: "#ffd43b", probability: 20 },
+      ];
+
+      let isSpinning = false;
+
+      function createWheel() {
+        const wheel = document.getElementById("wheel");
+        wheel.innerHTML = "";
+        const total = items.reduce((sum, item) => sum + item.probability, 0);
+        let currentAngle = 0;
+
+        items.forEach((item) => {
+          const slice = document.createElement("div");
+          slice.className = "wheel-slice";
+          const angle = (item.probability / total) * 360;
+
+          slice.style.transform = `rotate(${currentAngle}deg)`;
+          slice.style.background = `linear-gradient(90deg, ${item.color}dd, ${item.color})`;
+
+          const label = document.createElement("span");
+          label.textContent = `${item.label} (${item.probability}%)`;
+
+          slice.appendChild(label);
+          wheel.appendChild(slice);
+          currentAngle += angle;
+        });
+      }
+
+      function spin() {
+        if (isSpinning) return;
+
+        const wheel = document.getElementById("wheel");
+        const result = document.getElementById("result");
+        const spinButton = document.querySelector(".spin-button");
+
+        isSpinning = true;
+        spinButton.disabled = true;
+        result.textContent = "";
+
+        const totalProbability = items.reduce(
+          (sum, item) => sum + item.probability,
+          0
+        );
+        const random = Math.random() * totalProbability;
+        let currentSum = 0;
+        let selectedItem;
+
+        for (const item of items) {
+          currentSum += item.probability;
+          if (random <= currentSum) {
+            selectedItem = item;
+            break;
+          }
+        }
+
+        // 회전 로직 개선
+        const minSpins = 5;
+        const maxSpins = 8;
+        const spins = minSpins + Math.random() * (maxSpins - minSpins);
+        const degrees = spins * 360 + Math.random() * 360;
+
+        // 회전 애니메이션 적용
+        wheel.style.transform = `rotate(${degrees}deg)`;
+
+        setTimeout(() => {
+          result.innerHTML = `
+            <div class="result-content">
+              <div class="result-text">🎉 당첨!</div>
+              <div class="result-item" style="background-color: ${selectedItem.color}">
+                ${selectedItem.label}
+              </div>
+            </div>
+          `;
+
+          // 결과 표시 후 0.5초 뒤에 휠 초기화
+          setTimeout(() => {
+            wheel.style.transition = "none";
+            wheel.style.transform = "rotate(0deg)";
+            wheel.offsetHeight; // 강제 리플로우
+            wheel.style.transition =
+              "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+
+            isSpinning = false;
+            spinButton.disabled = false;
+          }, 500);
+        }, 4000);
+      }
+
+      function openModal() {
+        document.getElementById("settingsModal").style.display = "flex";
+        createModalControls();
+      }
+
+      function closeModal() {
+        document.getElementById("settingsModal").style.display = "none";
+      }
+
+      function addItem() {
+        const defaultColors = [
+          "#ff6b6b",
+          "#748ffc",
+          "#69db7c",
+          "#ffd43b",
+          "#845ef7",
+        ];
+        items.push({
+          label: `아이템 ${items.length + 1}`,
+          color: defaultColors[items.length % defaultColors.length],
+          probability: 0,
+        });
+        createModalControls();
+      }
+
+      function deleteItem(index) {
+        items.splice(index, 1);
+        createModalControls();
+      }
+
+      function createModalControls() {
+        const controls = document.getElementById("modalControls");
+        controls.innerHTML = "";
+
+        items.forEach((item, index) => {
+          const div = document.createElement("div");
+          div.className = "item-row";
+
+          const labelInput = document.createElement("input");
+          labelInput.type = "text";
+          labelInput.className = "item-input";
+          labelInput.value = item.label;
+          labelInput.placeholder = "아이템 이름";
+
+          const probInput = document.createElement("input");
+          probInput.type = "number";
+          probInput.className = "item-input";
+          probInput.value = item.probability;
+          probInput.placeholder = "확률 (%)";
+          probInput.min = "0";
+          probInput.max = "100";
+
+          const colorInput = document.createElement("input");
+          colorInput.type = "color";
+          colorInput.value = item.color;
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.className = "delete-button";
+          deleteBtn.innerHTML = "삭제";
+          deleteBtn.onclick = () => deleteItem(index);
+
+          div.appendChild(labelInput);
+          div.appendChild(probInput);
+          div.appendChild(colorInput);
+          if (items.length > 2) {
+            div.appendChild(deleteBtn);
+          }
+          controls.appendChild(div);
+        });
+      }
+
+      function saveSettings() {
+        const rows = document.querySelectorAll("#modalControls .item-row");
+        let total = 0;
+
+        // 각 행의 입력값을 처리
+        rows.forEach((row, index) => {
+          const inputs = row.querySelectorAll("input");
+          const labelInput = inputs[0];
+          const probInput = inputs[1];
+          const colorInput = inputs[2];
+
+          const newProb = parseInt(probInput.value) || 0;
+          total += newProb;
+
+          // 모든 값 업데이트
+          items[index].label = labelInput.value;
+          items[index].probability = newProb;
+          items[index].color = colorInput.value;
+        });
+
+        if (total !== 100) {
+          alert("모든 확률의 합이 100%가 되어야 합니다.");
+          return;
+        }
+
+        document.getElementById("wheel").innerHTML = "";
+        createWheel();
+        closeModal();
+      }
+
+      // 초기화 함수 개선
+      function resetWheel() {
+        const wheel = document.getElementById("wheel");
+        isSpinning = false;
+
+        // 트랜지션 일시적으로 제거
+        wheel.style.transition = "none";
+        wheel.style.transform = `rotate(0deg)`;
+
+        // 강제 리플로우
+        wheel.offsetHeight;
+
+        // 트랜지션 복구
+        wheel.style.transition =
+          "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+      }
+
+      // 범례 표시 함수
+      function updateLegend() {
+        const legendContainer = document.getElementById("legendItems");
+        legendContainer.innerHTML = items
+          .map(
+            (item) => `
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: ${item.color}"></div>
+            <div class="legend-text">${item.label}</div>
+            <div class="legend-probability">${item.probability}%</div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // 페이지 로드 시 초기화
+      window.addEventListener("load", () => {
+        createWheel();
+        updateLegend();
+      });
+    </script>
+  </body>
+</html>
