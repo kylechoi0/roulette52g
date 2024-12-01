@@ -1,0 +1,14 @@
+{
+  "firestore": {
+    "indexes": [
+      {
+        "collectionGroup": "records",
+        "queryScope": "COLLECTION",
+        "fields": [
+          { "fieldPath": "workStatus", "order": "ASCENDING" },
+          { "fieldPath": "createdAt", "order": "ASCENDING" }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "name": "gps-qrscan",
+  "version": "1.0.0",
+  "dependencies": {
+    "@firebase/app": "^0.10.16",
+    "@firebase/auth": "^1.8.1",
+    "@firebase/firestore": "^4.7.5",
+    "@headlessui/react": "^2.1.10",
+    "@zxing/library": "^0.21.3",
+    "chart.js": "^4.4.6",
+    "date-fns": "^2.30.0",
+    "dayjs": "^1.11.13",
+    "firebase": "^9.23.0",
+    "hangul-js": "^0.2.6",
+    "moment-timezone": "^0.5.46",
+    "react": "^18.2.0",
+    "react-calendar": "^4.8.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.50.0",
+    "react-icons": "^5.3.0",
+    "react-qr-scanner": "^1.0.0-alpha.11",
+    "react-responsive": "^10.0.0",
+    "react-router-dom": "^6.22.0",
+    "react-scripts": "^5.0.1",
+    "react-tailwindcss-datepicker": "^1.7.2",
+    "react-webcam": "^7.2.0",
+    "tailwind-datepicker-react": "^1.4.3",
+    "tailwind-merge": "^2.2.1"
+  },
+  "devDependencies": {
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
+    "autoprefixer": "^10.4.20",
+    "babel-loader": "^9.2.1",
+    "html-webpack-plugin": "^5.6.3",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "webpack": "^5.96.1",
+    "webpack-dev-server": "^4.15.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
